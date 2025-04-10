@@ -33,8 +33,15 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O aplicativo precisa de acesso à câmera para escanear QR codes."
+        }
+      ],
       "expo-font",
-      "expo-asset"
+      "expo-asset",
+      "expo-barcode-scanner"
     ],
     "experiments": {
       "typedRoutes": true

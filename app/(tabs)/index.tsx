@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
 
       <Text style={styles.loginText}>Já é usuário?</Text>
 
-      <TouchableOpacity onPress={() => router.push("/login")}>
+      <TouchableOpacity onPress={() => router.push("/Tela_Login/login")}>
         <Text style={styles.loginLink}>Faça Login</Text>
       </TouchableOpacity>
     </LinearGradient>

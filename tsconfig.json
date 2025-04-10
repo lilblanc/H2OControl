@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/(tabs)/barra-navegacao/Tela_Monitoramento/Scannapp/(tabs)/barra-navegacao/Tela_Inicial/home.jsxInicial/home.jsx", "app/(tabs)/barra-navegacao/Tela_Monitoramento/add-aquario.jsx"  ]
 }

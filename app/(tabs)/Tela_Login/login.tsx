@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import {View,Text,TextInput,TouchableOpacity,StyleSheet,Image,Alert,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { auth } from "../firebase/config.js";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/config.js";
+import { signInWithEmailAndPassword, getAuth} from "firebase/auth";
 
 
 export default function LoginScreen() {
@@ -16,11 +16,21 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Usuário logado:", userCredential.user.email);
-      router.push("/home");
-    } catch (error) {
+      const user = userCredential.user;
+  
+      await user.reload();
+  
+      if (user.emailVerified) {
+        console.log("Usuário logado:", user.email);
+        router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home");
+      } else {
+        Alert.alert(
+          "Verificação de E-mail Necessária",
+          "Seu e-mail ainda não foi verificado. Por favor, verifique seu e-mail antes de continuar."
+        );
+      }
+    } catch (error ) {
       if (error instanceof Error) {
-        console.error("Erro ao logar:", error.message);
         Alert.alert(
           "Não foi possível entrar",
           "Verifique se o e-mail e a senha estão corretos e tente novamente."
@@ -32,8 +42,9 @@ export default function LoginScreen() {
           "Ocorreu um erro ao tentar entrar na sua conta. Por favor, tente novamente mais tarde."
         );
       }
-    }    
+    }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -63,7 +74,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => router.replace("/(tabs)/Tela_Login/recuperar_senha")}>
         <Text style={styles.forgotPassword}>Esqueceu a senha?</Text>
       </TouchableOpacity>
 
@@ -86,7 +97,7 @@ export default function LoginScreen() {
       </View>
 
       <Text style={styles.registerText}>Não possui uma conta?</Text>
-      <TouchableOpacity onPress={() => router.push("/cadastrar")}>
+      <TouchableOpacity onPress={() => router.replace("/(tabs)/Tela_Cadastro/cadastrar")}>
         <Text style={styles.registerLink}>Cadastre-se</Text>
       </TouchableOpacity>
     </View>

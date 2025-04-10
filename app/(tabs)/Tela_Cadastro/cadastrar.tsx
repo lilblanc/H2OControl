@@ -2,42 +2,41 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
+import { getFirestore, doc, setDoc} from "firebase/firestore";
 
 const { width } = Dimensions.get("window");
 
 export default function RegisterScreen() {
   const router = useRouter();
   const auth = getAuth();
-  const database = getDatabase();
+  const firestore = getFirestore();
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
   const handleRegister = async () => {
+    if (!nome || !email || !senha) {
+      Alert.alert("Erro", "Preencha todos os campos.");
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const user = userCredential.user;
+      await sendEmailVerification(user);
 
+      Alert.alert(
+        "Verificação enviada",
+        "Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada. Após verificar, retorne ao aplicativo e tente realizar o login."
+      );
 
-    await sendEmailVerification(user);
-
-    Alert.alert(
-      "Verificação enviada",
-      "Um e-mail de verificação foi enviado. Por favor, verifique sua caixa de entrada."
-    );
-
-    router.push("/verificar-email");
+      router.replace("/Tela_Login/login");
       
-
-    await set(ref(database, "usuarios/" + user.uid), {
-      nome: nome,
-      email: email
-    });
-    
-    } catch (error) {
-      console.error("Erro ao cadastrar:", error);
+      await setDoc(doc(firestore, "usuarios", user.uid), {
+        nome: nome,
+      });
+    }catch (error) {
+      console.error("Erro no cadastro:", error);
       Alert.alert("Erro", "Ocorreu um erro ao cadastrar. Verifique os dados.");
     }
   };
@@ -74,20 +73,20 @@ export default function RegisterScreen() {
         Ao se cadastrar, você concorda com{" "}
         <Text style={styles.policyBold}>Termos de Uso e Política de Privacidade</Text>
       </Text>
-
+      
+    
       <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
         <Text style={styles.registerButtonText}>Cadastrar</Text>
       </TouchableOpacity>
 
       <Text style={styles.loginText}>Já é usuário?</Text>
-      <TouchableOpacity onPress={() => router.push("/login")}>
+      <TouchableOpacity onPress={() => router.replace("/Tela_Login/login")}>
         <Text style={styles.loginLink}>Faça Login</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-// Estilos mantidos como estão no seu código original
 const styles = StyleSheet.create({
   container: {
     flex: 1,

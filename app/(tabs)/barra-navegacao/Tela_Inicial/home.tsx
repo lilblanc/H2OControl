@@ -1,12 +1,37 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "../../../firebase/config.js";
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const [nomeUsuario, setNomeUsuario] = useState("");
+  const auth = getAuth();
+
+  useEffect(() => {
+    const carregarNome = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const docRef = doc(firestore, "usuarios", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setNomeUsuario(docSnap.data().nome);
+        } else {
+          console.log("Documento do usuário não encontrado.");
+        }
+      }
+    };
+
+    carregarNome();
+  }, []);
+
+
+
   const router = useRouter();
   let [fontsLoaded] = useFonts({
     Poppins_Regular: Poppins_400Regular,
@@ -20,7 +45,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Bem vindo, (nome)</Text>
+        <Text style={styles.welcomeText}>Bem vindo, {nomeUsuario}</Text>
       </View>
       
       <View style={styles.content}>
@@ -34,7 +59,7 @@ export default function HomeScreen() {
           Comece adicionando o aquário que deseja monitorar
         </Text>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/add-aquario") }>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/(tabs)/barra-navegacao/Tela_Monitoramento/add-aquario") }>
           <LinearGradient colors={["#76C8B2", "#4D92A6"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradient}>
             <Text style={styles.buttonText}>Adicionar aquário</Text>
           </LinearGradient>
@@ -47,12 +72,12 @@ export default function HomeScreen() {
           <Text style={styles.navTextActive}>Início</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/estatisticas") }>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/(tabs)/barra-navegacao/Tela_estatisticas/estatisticas") }>
           <Image source={require("@/assets/images/estatisticas-icone-desativado.png")} style={styles.navIcon} />
           <Text style={styles.navText}>Estatísticas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/perfil") }>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push("/(tabs)/barra-navegacao/Tela_perfil/perfil") }>
           <Image source={require("@/assets/images/perfil-icone-desativado.png")} style={styles.navIcon} />
           <Text style={styles.navText}>Perfil</Text>
         </TouchableOpacity>
