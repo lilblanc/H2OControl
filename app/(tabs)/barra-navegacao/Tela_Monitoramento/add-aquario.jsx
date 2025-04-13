@@ -47,6 +47,7 @@ export default function AdicionarAquario() {
   const handleAdicionarAquario = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
+    
   
     if (!user) {
       Alert.alert("Erro", "Usuário não autenticado.");
@@ -74,7 +75,7 @@ export default function AdicionarAquario() {
       await addDoc(collection(firestore, "aquarios"), novoAquario);
   
       Alert.alert("Sucesso", "Aquário adicionado com sucesso!");
-      router.back();
+      router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home");
     } catch (error) {
       console.error("Erro ao salvar aquário:", error);
       Alert.alert("Erro", "Não foi possível adicionar o aquário.");
@@ -192,7 +193,7 @@ export default function AdicionarAquario() {
         </Text>
 
         {/* Botão */}
-        <TouchableOpacity style={styles.button} onPress={handleAdicionarAquario}  >
+        <TouchableOpacity style={styles.button} onPress={(handleAdicionarAquario)}   >
           <LinearGradient
             colors={["#76C8B2", "#4D92A6"]}
             start={{ x: 0, y: 0 }}
