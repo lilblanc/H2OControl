@@ -3,9 +3,12 @@ import {View,Text,TextInput,TouchableOpacity,StyleSheet,Dimensions} from "react-
 import { LinearGradient } from "expo-linear-gradient";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
+import { getAuth } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
+import { firestore } from '../../../firebase/config'; // ajuste o caminho se necessário
+import { Alert } from "react-native";
 const { width } = Dimensions.get("window");
 
 export default function AdicionarAquario() {
@@ -19,6 +22,7 @@ export default function AdicionarAquario() {
   const [temperaturaMaxima, setTemperaturaMaxima] = useState(100);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const { sensorID } = useLocalSearchParams();
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -40,15 +44,58 @@ export default function AdicionarAquario() {
 
   if (!fontsLoaded) return null;
 
+  const handleAdicionarAquario = async () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+  
+    if (!user) {
+      Alert.alert("Erro", "Usuário não autenticado.");
+      return;
+    }
+  
+    if (!nome || !altura || !largura || !comprimento || !selectedDate) {
+      Alert.alert("Campos obrigatórios", "Preencha todos os campos.");
+      return;
+    }
+  
+    try {
+      const novoAquario = {
+        nome,
+        altura: Number(altura),
+        largura: Number(largura),
+        comprimento: Number(comprimento),
+        tempMinima: Number(temperaturaMinima),
+        tempMaxima: Number(temperaturaMaxima),
+        ultimaLimpeza: selectedDate,
+        usuarioID: user.uid,
+        sensorID: sensorID,
+      };
+  
+      await addDoc(collection(firestore, "aquarios"), novoAquario);
+  
+      Alert.alert("Sucesso", "Aquário adicionado com sucesso!");
+      router.back();
+    } catch (error) {
+      console.error("Erro ao salvar aquário:", error);
+      Alert.alert("Erro", "Não foi possível adicionar o aquário.");
+    }
+  };
+  
+
   return (
     <View style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Adicionar aquário</Text>
-        <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.closeButton} onPress={() => router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home")}>
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
+      {sensorID && (
+        <Text style={[styles.sectionTitle, { color: "#4D92A6" }]}>
+          Sensor vinculado com sucesso!
+        </Text>
+      )}
 
       {/* Formulário */}
       <View style={styles.form}>
@@ -145,7 +192,7 @@ export default function AdicionarAquario() {
         </Text>
 
         {/* Botão */}
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleAdicionarAquario}  >
           <LinearGradient
             colors={["#76C8B2", "#4D92A6"]}
             start={{ x: 0, y: 0 }}

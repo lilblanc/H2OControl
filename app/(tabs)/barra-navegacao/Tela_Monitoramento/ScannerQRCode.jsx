@@ -1,73 +1,92 @@
-// import React, { useEffect, useState } from "react";
-// import { Text, View, StyleSheet, Alert } from "react-native";
-// import { BarCodeScanner } from "expo-barcode-scanner";
-// import { useNavigation } from "@react-navigation/native";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button, Alert } from 'react-native';
+import { CameraView, Camera } from 'expo-camera';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { firestore } from '../../../firebase/config';
+import { getAuth } from 'firebase/auth';
+import {useRouter} from 'expo-router';
 
-// export default function QRCodeScannerScreen() {
-//   const [hasPermission, setHasPermission] = useState(null);
-//   const [scanned, setScanned] = useState(false);
-//   const navigation = useNavigation();
-//   const db = getFirestore();
+export default function ScannerScreen() {
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  const router = useRouter();
 
-//   useEffect(() => {
-//     (async () => {
-//       const { status } = await BarCodeScanner.requestPermissionsAsync();
-//       setHasPermission(status === "granted");
-//     })();
-//   }, []);
 
-//   const handleBarCodeScanned = async ({ type, data }) => {
-//     setScanned(true);
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
 
-//     const sensorId = data.trim();
-//     const sensorRef = doc(db, "sensors", sensorId);
-//     const sensorSnap = await getDoc(sensorRef);
+  const handleBarcodeScanned = async ({ data }) => {
+    setScanned(true);
+    const sensorID = data;
 
-//     if (!sensorSnap.exists()) {
-//       Alert.alert("QR Code inválido", "Este sensor não está registrado.");
-//       setScanned(false);
-//       return;
-//     }
+    try {
+      const sensorRef = doc(firestore, 'sensores', sensorID);
+      const sensorSnap = await getDoc(sensorRef);
 
-//     const sensorData = sensorSnap.data();
-//     if (sensorData.associado) {
-//       Alert.alert("Sensor já utilizado", "Este sensor já está vinculado a um aquário.");
-//       setScanned(false);
-//       return;
-//     }
+      if (!sensorSnap.exists()) {
+        Alert.alert('Erro', 'Sensor não encontrado.');
+        return;
+      }
 
-//     // Sensor válido e disponível, vamos para a tela de cadastro
-//     navigation.navigate("CadastroAquario", { sensorId });
-//   };
+      const sensorData = sensorSnap.data();
+      if (sensorData.usuario) {
+        Alert.alert('Aviso', 'Este sensor já está vinculado a outro usuário.');
+        return;
+      }
 
-//   if (hasPermission === null) return <Text>Solicitando permissão da câmera...</Text>;
-//   if (hasPermission === false) return <Text>Permissão negada. Habilite a câmera nas configurações.</Text>;
+      const user = getAuth().currentUser;
+      if (!user) {
+        Alert.alert('Erro', 'Usuário não autenticado.');
+        return;
+      }
 
-//   return (
-//     <View style={{ flex: 1 }}>
-//       <BarCodeScanner
-//         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-//         style={{ flex: 1 }}
-//       />
-//       {scanned && (
-//         <Text
-//           style={styles.reescan}
-//           onPress={() => setScanned(false)}
-//         >
-//           Tocar para escanear novamente
-//         </Text>
-//       )}
-//     </View>
-//   );
-// }
+      // Vincula o sensor ao usuário
+      await updateDoc(sensorRef, {
+        usuario: user.uid,
+        status: true, // ou "vinculado: true"
+      });
 
-// const styles = StyleSheet.create({
-//   reescan: {
-//     backgroundColor: "#000",
-//     color: "#fff",
-//     padding: 15,
-//     textAlign: "center",
-//     fontSize: 16
-//   }
-// });
+      Alert.alert('Sucesso', 'Sensor vinculado com sucesso!');
+
+      // Aqui você pode redirecionar para a tela de cadastro do aquário
+      router.push({
+        pathname: "/(tabs)/barra-navegacao/Tela_Monitoramento/add-aquario",
+        params: { sensorID: sensorID },
+      });
+            
+
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Falha ao validar o sensor.');
+    }
+  };
+
+  if (hasPermission === null) {
+    return <Text>Solicitando permissão...</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>Sem acesso à câmera.</Text>;
+  }
+
+  return (
+    <View style={styles.container}>
+      <CameraView
+        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+        style={StyleSheet.absoluteFillObject}
+      />
+      {scanned && (
+        <Button title={'Escanear novamente'} onPress={() => setScanned(false)} />
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

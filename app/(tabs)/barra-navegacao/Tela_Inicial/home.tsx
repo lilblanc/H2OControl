@@ -59,7 +59,7 @@ export default function HomeScreen() {
           Comece adicionando o aquário que deseja monitorar
         </Text>
 
-        <TouchableOpacity style={styles.button} onPress={() => router.push("/(tabs)/barra-navegacao/Tela_Monitoramento/add-aquario") }>
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/(tabs)/barra-navegacao/Tela_Monitoramento/ScannerQRCode") }>
           <LinearGradient colors={["#76C8B2", "#4D92A6"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradient}>
             <Text style={styles.buttonText}>Adicionar aquário</Text>
           </LinearGradient>
