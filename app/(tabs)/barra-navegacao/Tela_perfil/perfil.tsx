@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, Switch, StyleSheet, Image } from "react-native";
-import { getAuth } from "firebase/auth";
+import { View, Text, TouchableOpacity, Switch, StyleSheet, Image, Modal, Pressable } from "react-native";
+import { getAuth, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "../../../firebase/config.js";
 import { useRouter } from "expo-router";
@@ -10,6 +10,7 @@ export default function PerfilScreen() {
   const router = useRouter();
   const [nome, setNome] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -27,6 +28,9 @@ export default function PerfilScreen() {
   }, []);
 
   return (
+
+
+    
     <View style={styles.container}>
       <Text style={styles.header}>Configurações de Perfil</Text>
 
@@ -52,7 +56,52 @@ export default function PerfilScreen() {
           <Text style={styles.option}>Mudar senha</Text>
           <Entypo name="chevron-right" size={20} />
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.optionRow}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={[styles.option, { color: "#E53935" }]}>Sair da conta</Text>
+          <Entypo name="log-out" size={20} color="#E53935" />
+        </TouchableOpacity>
+
       </View>
+      <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    > 
+  <View style={styles.modalBackground}>
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>Tem certeza que deseja sair?</Text>
+      <View style={styles.modalButtons}>
+        <Pressable
+          style={[styles.modalButton, { backgroundColor: "#E53935" }]}
+          onPress={async () => {
+            try {
+              await signOut(getAuth());
+              setModalVisible(false);
+              router.replace("/");
+            } catch (error) {
+              console.error("Erro ao deslogar:", error);
+            }
+          }}
+        >
+          <Text style={styles.modalButtonText}>Sair</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.modalButton, { backgroundColor: "#ccc" }]}
+          onPress={() => setModalVisible(false)}
+        >
+          <Text style={styles.modalButtonText}>Cancelar</Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+      
 
       {/* Seção Notificações */}
       <View style={styles.section}>
@@ -200,5 +249,41 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Poppins_Bold",
     color: "#051D3F",
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontFamily: "Poppins_Bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    fontFamily: "Poppins_Regular",
+    color: "#fff",
+    fontSize: 14,
   },
 });

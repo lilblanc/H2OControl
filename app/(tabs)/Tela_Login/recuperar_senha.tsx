@@ -99,7 +99,7 @@ export default function ForgotPasswordScreen() {
               style={styles.modalButton}
               onPress={() => {
                 setModalVisible(false);
-                router.back(); 
+                router.replace("/(tabs)/Tela_Login/login"); 
               }}
             >
               <Text style={styles.modalButtonText}>Voltar para o login</Text>
@@ -125,11 +125,11 @@ const styles = StyleSheet.create({
     color: "#1d2a3a",
   },
   titleHighlight: {
-    color: "#5ec2b1",
+    color: "#74C7B7",
   },
   subtitle: {
     fontSize: 14,
-    color: "#9fa5af",
+    color: "#000",
     textAlign: "center",
     marginTop: 10,
     marginBottom: 30,
@@ -137,7 +137,6 @@ const styles = StyleSheet.create({
   },
   subtitleBold: {
     fontFamily: "Poppins_Bold",
-    color: "#6b6b6b",
   },
   inputWrapper: {
     flexDirection: "row",
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Regular",
   },
   button: {
-    backgroundColor: "#888",
+    backgroundColor: "#000",
     paddingVertical: 15,
     borderRadius: 30,
     width: width * 0.85,

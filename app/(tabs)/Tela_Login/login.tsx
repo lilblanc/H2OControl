@@ -21,6 +21,7 @@ export default function LoginScreen() {
       await user.reload();
   
       if (user.emailVerified) {
+        const token = await user.getIdToken();
         console.log("Usuário logado:", user.email);
         router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home");
       } else {
@@ -45,6 +46,7 @@ export default function LoginScreen() {
     }
   };
   
+
 
   return (
     <View style={styles.container}>
@@ -149,9 +151,8 @@ const styles = StyleSheet.create({
   forgotPassword: {
     alignSelf: "flex-end",
     fontSize: 14,
-    color: "#888",
     marginBottom: 20,
-    fontFamily: "Poppins_Regular",
+    fontFamily: "Poppins_Bold",
   },
   button: {
     backgroundColor: "#222",
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   },
   orText: {
     fontSize: 14,
-    color: "#888",
+    color: "#000",
     marginBottom: 10,
     fontFamily: "Poppins_Regular",
     textAlign: "center",

@@ -142,7 +142,7 @@ export default function AdicionarAquario() {
 
         {/* Data de limpeza */}
         <Text style={styles.label}>Data da última limpeza</Text>
-        <TouchableOpacity onPress={showDatePicker} style={styles.input}>
+        <TouchableOpacity onPress={showDatePicker} style={styles.inputSmall}>
           <Text style={{ color: selectedDate ? '#000' : '#999', fontFamily: 'Poppins_Regular' }}>
             {selectedDate ? selectedDate.toLocaleDateString('pt-BR') : 'Selecione a data'}
           </Text>

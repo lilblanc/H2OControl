@@ -24,16 +24,17 @@ export default function WelcomeScreen() {
 
       <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
 
-      <TouchableOpacity style={styles.button} onPress={() => router.push("/Tela_Cadastro/cadastrar")}>
+      <TouchableOpacity style={styles.button} onPress={() => router.replace("/Tela_Cadastro/cadastrar")}>
         <Text style={styles.buttonText}>CADASTRE-SE</Text>
       </TouchableOpacity>
 
       <Text style={styles.loginText}>Já é usuário?</Text>
 
-      <TouchableOpacity onPress={() => router.push("/Tela_Login/login")}>
+      <TouchableOpacity onPress={() => router.replace("/Tela_Login/login")}>
         <Text style={styles.loginLink}>Faça Login</Text>
       </TouchableOpacity>
     </LinearGradient>
+    
   );
 }
 
