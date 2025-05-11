@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  Dimensions,
-  ActivityIndicator,
-} from "react-native";
+import {View,Text,TouchableOpacity,Image,StyleSheet,Dimensions,ActivityIndicator} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { getAuth } from "firebase/auth";
 import { collection, doc, getDoc, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { firestore } from "../../../firebase/config";
-import { Ionicons } from '@expo/vector-icons';
+import { Thermometer, Waves } from 'lucide-react-native';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+
 const { width } = Dimensions.get("window");
 
 type Aquario = {
@@ -24,8 +18,8 @@ type Aquario = {
   altura: number;
   comprimento: number;
   largura: number;
-  temperaturaMaxima: number;
-  temperaturaMinima: number;
+  tempMaxima: number;
+  tempMinima: number;
 };
 
 type SensorData = {
@@ -39,11 +33,16 @@ export default function HomeScreen() {
   const [sensorData, setSensorData] = useState<SensorData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const getNivelColor = (nivel: number): string => {
+    if (nivel < 40) return "#FF4C4C";     
+    if (nivel < 60) return "#FFD700";     
+    return "#43BEB6";                     
+  };
+  
+
   const auth = getAuth();
   const router = useRouter();
-  const handleEdit = () => {
-    router.push('//barra-navegacao/Tela_Monitoramento/EditarAquario'); // ou passe o ID do aquário se necessário
-  };
+
 
   let [fontsLoaded] = useFonts({
     Poppins_Regular: Poppins_400Regular,
@@ -77,12 +76,12 @@ export default function HomeScreen() {
               altura: aquarioData.altura,
               comprimento: aquarioData.comprimento,
               largura: aquarioData.largura,
-              temperaturaMaxima: aquarioData.temperaturaMaxima,
-              temperaturaMinima: aquarioData.temperaturaMinima,
+              tempMaxima: aquarioData.tempMaxima,
+              tempMinima: aquarioData.tempMinima,
             };
 
             setAquario(novoAquario);
-
+            
             const sensorRef = doc(firestore, "sensores", aquarioData.sensorID);
             onSnapshot(sensorRef, (sensorSnap) => {
               if (sensorSnap.exists()) {
@@ -112,15 +111,15 @@ export default function HomeScreen() {
   if (!fontsLoaded || loading) {
     return (
       <View style={[styles.container, { justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color="#76C8B2" />
+        <ActivityIndicator size="large" color="#43BEB6" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#00455A', '#004256', '#004E5E', '#005C69', '#006B71', '#007177']} style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Bem-vindo, {nomeUsuario}</Text>
+        <Text style={styles.welcomeText}>Olá, {nomeUsuario}</Text>
       </View>
 
       {!aquario ? (
@@ -134,12 +133,12 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("/(tabs)/barra-navegacao/Tela_Monitoramento/ScannerQRCode")}
+            onPress={() => router.push("/(tabs)/(auth)/Tela_Monitoramento/ScannerQRCode")}
           >
             <LinearGradient
-              colors={["#76C8B2", "#4D92A6"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
+              colors={["#43BEB6", "#3ABEB7", "#2AB9B5", "#1FB7B6", "#0BADB2", "#08A9B2"]}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 0 }}
               style={styles.gradient}
             >
               <Text style={styles.buttonText}>Adicionar aquário</Text>
@@ -147,40 +146,68 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.content}>
-          <Text style={styles.aquarioNome}>{aquario.nome}</Text>
-          <Text style={styles.aquarioSub}>Temperatura atual:</Text>
-          <Text style={styles.dado}>{sensorData?.temperatura ?? "--"}°C</Text>
-          <Text style={styles.aquarioSub}>Nível da água:</Text>
-          <Text style={styles.dado}>{calcularNivelPorcentagem()}%</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <TouchableOpacity onPress={handleEdit}/>
-        
-      </View>
+          <View style={styles.content}>
+            <View style={styles.card}>
+              <Text style={styles.aquarioNome}>{aquario.nome}</Text>
 
+              <View style={styles.dadoContainer}>
+                <View style={styles.iconeLinha}>
+                  <Thermometer size={32} color="#43BEB6" style={{ marginRight: 10 }} />
+                  <Text style={styles.aquarioSub}>Temperatura atual:</Text>
+                </View>
+                <Text style={styles.dado}>{sensorData?.temperatura ?? "--"}°C</Text>
+              </View>
 
-          <TouchableOpacity
-            style={styles.buttonEdit}
-            onPress={() => router.push({ pathname: "/(tabs)/barra-navegacao/Tela_Monitoramento/editarAquario", params: { aquarioID: aquario.id, 
-              nome: aquario.nome,
-              altura: String(aquario.altura),
-              largura: String(aquario.largura),
-              comprimento: String(aquario.comprimento),
-              temperaturaMaxima: String(aquario.temperaturaMaxima),
-              temperaturaMinima: String(aquario.temperaturaMinima),} })}
-          >
-            <LinearGradient
-              colors={["#76C8B2", "#4D92A6"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.gradient}
+              <View style={styles.dadoContainer}>
+                <View style={styles.iconeLinha}>
+                  <Waves size={32} color="#43BEB6" style={{ marginRight: 10 }} />
+                  <Text style={styles.aquarioSub}>Nível da água:</Text>
+                </View>
+                <AnimatedCircularProgress
+                  size={120}
+                  width={15}
+                  fill={parseFloat(calcularNivelPorcentagem())}
+                  tintColor={getNivelColor(parseFloat(calcularNivelPorcentagem()))}
+                  backgroundColor="#E0F0F3"
+                  lineCap="round"
+                >
+
+                  {() => (
+                    <Text style={styles.dado}>
+                      {calcularNivelPorcentagem()}%
+                    </Text>
+                  )}
+                </AnimatedCircularProgress>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.buttonEdit}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/(auth)/Tela_Monitoramento/editarAquario",
+                  params: {
+                    aquarioID: aquario.id,
+                    nome: aquario.nome,
+                    altura: String(aquario.altura),
+                    largura: String(aquario.largura),
+                    comprimento: String(aquario.comprimento),
+                    tempMaxima: String(aquario.tempMaxima),
+                    tempMinima: String(aquario.tempMinima),
+                  },
+                })
+              }
             >
-              <Text style={styles.buttonText}>Editar aquário</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-
-        </View>
+              <LinearGradient
+                colors={["#43BEB6", "#3ABEB7", "#2AB9B5", "#1FB7B6", "#0BADB2", "#08A9B2"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.gradient}
+              >
+                <Text style={styles.buttonText}>Editar aquário</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
       )}
 
       <View style={styles.bottomNav}>
@@ -191,7 +218,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push("/(tabs)/barra-navegacao/Tela_estatisticas/estatisticas")}
+          onPress={() => router.push("/(tabs)/(auth)/Tela_estatisticas/estatisticas")}
         >
           <Image source={require("@/assets/images/estatisticas-icone-desativado.png")} style={styles.navIcon} />
           <Text style={styles.navText}>Estatísticas</Text>
@@ -199,81 +226,82 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push("/(tabs)/barra-navegacao/Tela_perfil/perfil")}
+          onPress={() => router.push("/(tabs)/(auth)/Tela_perfil/perfil")}
         >
           <Image source={require("@/assets/images/perfil-icone-desativado.png")} style={styles.navIcon} />
           <Text style={styles.navText}>Perfil</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FB",
-    alignItems: "center",
-    paddingTop: 50,
   },
   header: {
     width: "100%",
-    backgroundColor: "#f8f9fb",
-    paddingVertical: 15,
-    alignItems: "center",
+    height: 100,
+    justifyContent: "flex-end",
+    paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   welcomeText: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: "Poppins_Bold",
-    color: "#000",
+    color: "#fff",
   },
   content: {
     flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: width/3,
     alignItems: "center",
-    justifyContent: "center",
   },
-  image: {
-    width: 150,
-    height: 150,
+  card: {
+    width: "100%",
+    backgroundColor: "transparent",
+    borderRadius: 20,
+    padding: 20,
     marginBottom: 20,
   },
-  title: {
-    fontSize: 18,
-    fontFamily: "Poppins_Regular",
-    textAlign: "center",
-    color: "#333",
-  },
-  boldText: {
+  aquarioNome: {
+    fontSize: 20,
     fontFamily: "Poppins_Bold",
-    color: "#051D3F",
-  },
-  highlightText: {
-    color: "#74C7B7",
-    fontFamily: "Poppins_Bold",
-  },
-  description: {
-    fontSize: 14,
-    fontFamily: "Poppins_Regular",
+    color: "#fff",
     textAlign: "center",
-    color: "#777",
     marginBottom: 20,
+  },
+  dadoContainer: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  iconeLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  aquarioSub: {
+    fontSize: 16,
+    fontFamily: "Poppins_Regular",
+    color: "#fff",
+  },
+  dado: {
+    fontSize: 32,
+    fontFamily: "Poppins_Bold",
+    color: "#fff",
   },
   buttonEdit: {
-    width: width * 0.6,
-    borderRadius: 30,
-    overflow: "hidden",
     position: "absolute",
-    bottom: 20,
-  },
-  button: {
-    width: width * 0.8,
+    bottom: 30,
+    width: "80%",
+    alignSelf: "center",
     borderRadius: 30,
     overflow: "hidden",
   },
   gradient: {
     paddingVertical: 15,
     alignItems: "center",
-    paddingHorizontal: 40,
     justifyContent: "center",
     borderRadius: 50,
   },
@@ -282,22 +310,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Poppins_Bold",
   },
-  aquarioNome: {
-    fontSize: 22,
-    fontFamily: "Poppins_Bold",
-    color: "#051D3F",
+  image: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: "Poppins_Regular",
+    textAlign: "center",
+    color: "#fff",
     marginBottom: 10,
   },
-  aquarioSub: {
-    fontSize: 16,
-    fontFamily: "Poppins_Regular",
-    color: "#777",
-  },
-  dado: {
-    fontSize: 32,
+  boldText: {
     fontFamily: "Poppins_Bold",
-    color: "#4D92A6",
+    color: "#fff",
+  },
+  highlightText: {
+    color: "#43BEB6",
+    fontFamily: "Poppins_Bold",
+  },
+  description: {
+    fontSize: 14,
+    fontFamily: "Poppins_Regular",
+    textAlign: "center",
+    color: "#fff",
     marginBottom: 20,
+  },
+  button: {
+    width: "80%",
+    borderRadius: 30,
+    overflow: "hidden",
   },
   bottomNav: {
     flexDirection: "row",
@@ -308,6 +351,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     elevation: 8,
+    alignSelf: "center",
   },
   navItem: {
     alignItems: "center",
@@ -326,5 +370,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Poppins_Bold",
     color: "#051D3F",
-  },
+  },
 });

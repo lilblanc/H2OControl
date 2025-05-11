@@ -5,12 +5,15 @@ import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "../../../firebase/config.js";
 import { useRouter } from "expo-router";
 import { FontAwesome, Feather, MaterialIcons, Entypo } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function PerfilScreen() {
   const router = useRouter();
   const [nome, setNome] = useState("");
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -31,7 +34,7 @@ export default function PerfilScreen() {
 
 
     
-    <View style={styles.container}>
+    <LinearGradient colors={['#00455A', '#004256', '#004E5E', '#005C69', '#006B71', '#007177']} style={styles.container}>
       <Text style={styles.header}>Configurações de Perfil</Text>
 
       {/* Seção Conta */}
@@ -46,7 +49,7 @@ export default function PerfilScreen() {
           onPress={() => router.replace("../Tela_perfil/editarPerfil")}
         >
           <Text style={styles.option}>Editar perfil</Text>
-          <Entypo name="chevron-right" size={20} />
+          <Entypo name="chevron-right" size={20} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -54,7 +57,7 @@ export default function PerfilScreen() {
           onPress={() => router.replace("/(tabs)/Tela_Login/recuperar_senha")}
         >
           <Text style={styles.option}>Mudar senha</Text>
-          <Entypo name="chevron-right" size={20} />
+          <Entypo name="chevron-right" size={20} color="#fff" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -67,11 +70,11 @@ export default function PerfilScreen() {
 
       </View>
       <Modal
-      animationType="fade"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-    > 
+  animationType="fade"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
   <View style={styles.modalBackground}>
     <View style={styles.modalContainer}>
       <Text style={styles.modalTitle}>Tem certeza que deseja sair?</Text>
@@ -82,7 +85,7 @@ export default function PerfilScreen() {
             try {
               await signOut(getAuth());
               setModalVisible(false);
-              router.replace("/");
+              router.replace("/"); // Redireciona para a tela de login, impedindo o back
             } catch (error) {
               console.error("Erro ao deslogar:", error);
             }
@@ -101,7 +104,6 @@ export default function PerfilScreen() {
     </View>
   </View>
 </Modal>
-      
 
       {/* Seção Notificações */}
       <View style={styles.section}>
@@ -128,17 +130,17 @@ export default function PerfilScreen() {
 
         <TouchableOpacity style={styles.optionRow}>
           <Text style={styles.option}>Termos de uso</Text>
-          <Entypo name="chevron-right" size={20} />
+          <Entypo name="chevron-right" size={20} color="#fff"/>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.optionRow}>
           <Text style={styles.option}>Sobre</Text>
-          <Entypo name="chevron-right" size={20} />
+          <Entypo name="chevron-right" size={20} color="#fff"  />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.optionRow}>
           <Text style={styles.option}>Ajuda</Text>
-          <Entypo name="chevron-right" size={20} />
+          <Entypo name="chevron-right" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -146,7 +148,7 @@ export default function PerfilScreen() {
       <View style={styles.bottomNav}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push("/(tabs)/barra-navegacao/Tela_Inicial/home")}
+          onPress={() => router.push("/(tabs)/(auth)/Tela_Inicial/home")}
         >
           <Image
             source={require("@/assets/images/inicio-icone-desativado.png")}
@@ -157,7 +159,7 @@ export default function PerfilScreen() {
 
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push("/(tabs)/barra-navegacao/Tela_estatisticas/estatisticas")}
+          onPress={() => router.push("/(tabs)/(auth)/Tela_estatisticas/estatisticas")}
         >
           <Image
             source={require("@/assets/images/estatisticas-icone-desativado.png")}
@@ -174,7 +176,7 @@ export default function PerfilScreen() {
           <Text style={styles.navTextActive}>Perfil</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -186,13 +188,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
     paddingTop: 20,
-    backgroundColor: "#fff",
-    color: "#000",
-    
+    // backgroundColor: "#fff",
+    color: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  section: { marginBottom: 20 },
+  section: { 
+    marginBottom: 20 
+  },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -202,9 +205,11 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   icon: {
+    color:"#fff",
     marginRight: 10,
   },
   sectionTitle: {
+  color: "#fff",
     fontFamily: "Poppins_Bold",
     fontSize: 14,
   },
@@ -215,6 +220,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   option: {
+    color: '#fff',
     fontFamily: "Poppins_Regular",
     fontSize: 16,
   },

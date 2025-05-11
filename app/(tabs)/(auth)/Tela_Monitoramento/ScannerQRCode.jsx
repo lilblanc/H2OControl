@@ -44,17 +44,16 @@ export default function ScannerScreen() {
         return;
       }
 
-      // Vincula o sensor ao usuário
       await updateDoc(sensorRef, {
         usuario: user.uid,
-        status: true, // ou "vinculado: true"
+        status: true, 
       });
 
       Alert.alert('Sucesso', 'Sensor vinculado com sucesso!');
 
-      // Aqui você pode redirecionar para a tela de cadastro do aquário
+      
       router.push({
-        pathname: "/(tabs)/barra-navegacao/Tela_Monitoramento/add-aquario",
+        pathname: "/(tabs)/(auth)/Tela_Monitoramento/add-aquario",
         params: { sensorID: sensorID },
       });
             

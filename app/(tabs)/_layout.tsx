@@ -1,15 +1,12 @@
 import { Stack } from "expo-router";
 
-export default function Layout() {
+export default function AuthLayout() {
   return (
     <Stack
       screenOptions={{
-        animation: "slide_from_right", // Escolha o tipo de animação
-        presentation: "card", // Apresentação como um card animado
-        gestureEnabled: true,
-        headerShown:false 
+        headerShown: false,
+        animation: "slide_from_right",
       }}
     />
-
   );
 }

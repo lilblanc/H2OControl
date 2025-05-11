@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
+
 export default function WelcomeScreen() {
   const router = useRouter();
 

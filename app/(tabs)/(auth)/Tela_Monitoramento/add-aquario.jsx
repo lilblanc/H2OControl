@@ -6,7 +6,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { firestore } from '../../../firebase/config'; // ajuste o caminho se necessário
 import { Alert } from "react-native";
 const { width } = Dimensions.get("window");
@@ -75,26 +75,58 @@ export default function AdicionarAquario() {
       await addDoc(collection(firestore, "aquarios"), novoAquario);
   
       Alert.alert("Sucesso", "Aquário adicionado com sucesso!");
-      router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home");
+      router.replace("/(tabs)/(auth)/Tela_Inicial/home");
     } catch (error) {
       console.error("Erro ao salvar aquário:", error);
       Alert.alert("Erro", "Não foi possível adicionar o aquário.");
     }
   };
+
+
+  const handleCancelarCadastro = () => {
+    Alert.alert(
+      "Cancelar cadastro",
+      "Deseja mesmo cancelar? Os dados não serão salvos.",
+      [
+        {
+          text: "Não",
+          style: "cancel",
+        },
+        {
+          text: "Sim, cancelar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const sensorRef = doc(firestore, "sensores", sensorID);
+              await updateDoc(sensorRef, {
+                usuario: null,
+              });
+              router.replace("/(tabs)/(auth)/Tela_Inicial/home");
+            } catch (error) {
+              console.error("Erro ao desvincular usuário do sensor:", error);
+              Alert.alert("Erro", "Não foi possível cancelar corretamente.");
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#00455A', '#004256', '#004E5E', '#005C69', '#006B71', '#007177']} style={styles.container}>
       {/* Cabeçalho */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Adicionar aquário</Text>
-        <TouchableOpacity style={styles.closeButton} onPress={() => router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home")}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleCancelarCadastro}>
           <Ionicons name="close" size={24} color="#fff" />
         </TouchableOpacity>
+
       </View>
       {sensorID && (
         <Text style={[styles.sectionTitle, { color: "#4D92A6" }]}>
-          Sensor vinculado com sucesso!
+          {/* Sensor vinculado com sucesso! */}
         </Text>
       )}
 
@@ -107,7 +139,7 @@ export default function AdicionarAquario() {
           <TextInput
             style={styles.inputSmall}
             placeholder="Altura"
-            placeholderTextColor="#999"
+            placeholderTextColor="#fff"
             value={altura}
             onChangeText={setAltura}
             keyboardType="numeric"
@@ -115,7 +147,7 @@ export default function AdicionarAquario() {
           <TextInput
             style={styles.inputSmall}
             placeholder="Comprimento"
-            placeholderTextColor="#999"
+            placeholderTextColor="#fff"
             value={comprimento}
             onChangeText={setComprimento}
             keyboardType="numeric"
@@ -123,7 +155,7 @@ export default function AdicionarAquario() {
           <TextInput
             style={styles.inputSmall}
             placeholder="Largura"
-            placeholderTextColor="#999"
+            placeholderTextColor="#fff"
             value={largura}
             onChangeText={setLargura}
             keyboardType="numeric"
@@ -135,7 +167,7 @@ export default function AdicionarAquario() {
         <TextInput
           style={styles.input}
           placeholder="Nome do aquário"
-          placeholderTextColor="#999"
+          placeholderTextColor="#fff"
           value={nome}
           onChangeText={setNome}
         />
@@ -143,7 +175,7 @@ export default function AdicionarAquario() {
         {/* Data de limpeza */}
         <Text style={styles.label}>Data da última limpeza</Text>
         <TouchableOpacity onPress={showDatePicker} style={styles.inputSmall}>
-          <Text style={{ color: selectedDate ? '#000' : '#999', fontFamily: 'Poppins_Regular' }}>
+          <Text style={{ color: selectedDate ? '#fff' : '#fff', fontFamily: 'Poppins_Regular', fontSize: 11 }}>
             {selectedDate ? selectedDate.toLocaleDateString('pt-BR') : 'Selecione a data'}
           </Text>
         </TouchableOpacity>
@@ -166,7 +198,7 @@ export default function AdicionarAquario() {
           <TextInput
             style={styles.inputSmall}
             placeholder="0-100° C"
-            placeholderTextColor="#999"
+            placeholderTextColor="#fff"
             value={temperaturaMinima}
             onChangeText={setTemperaturaMinima}
             keyboardType="numeric"
@@ -182,7 +214,7 @@ export default function AdicionarAquario() {
           <TextInput
             style={styles.inputSmall}
             placeholder="0-100° C"
-            placeholderTextColor="#999"
+            placeholderTextColor="#fff"
             value={temperaturaMaxima}
             onChangeText={setTemperaturaMaxima}
             keyboardType="numeric"
@@ -204,7 +236,7 @@ export default function AdicionarAquario() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -215,7 +247,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginTop: 51,
-    backgroundColor: "#000",
+    backgroundColor: "transparent",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -225,7 +257,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontFamily: "Poppins_Bold",
-    fontSize: 16,
+    fontSize: 20,
     color: "#fff",
   },
   closeButton: {
@@ -242,13 +274,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Poppins_Bold",
     fontSize: 16,
-    color: "#051D3F",
+    color: "#fff",
     marginBottom: 10,
   },
   inputRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 5,
+    color: "#fff",
+    fontFamily: "Poppins_Regular",
   },
   inputSmall: {
     width: "30%",
@@ -258,6 +292,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontFamily: "Poppins_Regular",
+    color: "#fff",
     fontSize: 13,
   },
   input: {
@@ -268,12 +303,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontFamily: "Poppins_Regular",
     fontSize: 13,
-    marginTop: 25,
+    color: "#fff",
+    marginTop: 10,
   },
   inputHint: {
     fontSize: 11,
     fontFamily: "Poppins_Regular",
-    color: "#999",
+    color: "#fff",
     marginTop: 5,
     marginBottom: 15,
     textAlign: "left",
@@ -282,24 +318,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_Regular",
     fontSize: 13,
     marginTop: 25,
-    color: "#000",
-  },
-  sliderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginTop: 10,
-  },
-  slider: {
-    flex: 1,
-    height: 40,
-  },
-  sliderHint: {
-    fontSize: 11,
-    fontFamily: "Poppins_Regular",
-    color: "#999",
-    marginTop: 5,
-    marginBottom: 15,
+    color: "#fff",
   },
   button: {
     marginTop: 30,
@@ -316,5 +335,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontFamily: "Poppins_Bold",
+  },
+  tempHint:{
+    color: "#fff",
+    fontFamily: "Poppins_Regular",
+    fontSize: 11,
   },
 });

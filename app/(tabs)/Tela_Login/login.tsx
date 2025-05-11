@@ -23,7 +23,7 @@ export default function LoginScreen() {
       if (user.emailVerified) {
         const token = await user.getIdToken();
         console.log("Usuário logado:", user.email);
-        router.replace("/(tabs)/barra-navegacao/Tela_Inicial/home");
+        router.replace("/(tabs)/(auth)/Tela_Inicial/home");
       } else {
         Alert.alert(
           "Verificação de E-mail Necessária",
