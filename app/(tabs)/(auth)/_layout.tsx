@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { View, ActivityIndicator } from "react-native";
 
+
+
+
+
 export default function AuthenticatedLayout() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,7 +17,7 @@ export default function AuthenticatedLayout() {
       if (user) {
         setIsAuthenticated(true);
       } else {
-        router.replace("C:\Users\Usuario\H2OControl\app\(tabs)\index.tsx");
+        router.replace("/(tabs)");
       }
       setCheckingAuth(false);
     });

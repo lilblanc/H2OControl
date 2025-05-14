@@ -85,7 +85,7 @@ export default function PerfilScreen() {
             try {
               await signOut(getAuth());
               setModalVisible(false);
-              router.replace("/"); // Redireciona para a tela de login, impedindo o back
+              router.replace("/"); 
             } catch (error) {
               console.error("Erro ao deslogar:", error);
             }
@@ -144,7 +144,6 @@ export default function PerfilScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* BottomNav - NÃO ALTERADO */}
       <View style={styles.bottomNav}>
         <TouchableOpacity
           style={styles.navItem}
@@ -157,7 +156,7 @@ export default function PerfilScreen() {
           <Text style={styles.navText}>Início</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.navItem}
           onPress={() => router.push("/(tabs)/(auth)/Tela_estatisticas/estatisticas")}
         >
@@ -166,7 +165,7 @@ export default function PerfilScreen() {
             style={styles.navIcon}
           />
           <Text style={styles.navText}>Estatísticas</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity style={styles.navItem}>
           <Image

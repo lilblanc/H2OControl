@@ -7,7 +7,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth } from "firebase/auth";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
-import { firestore } from '../../../firebase/config'; // ajuste o caminho se necessário
+import { firestore } from '../../../firebase/config'; 
 import { Alert } from "react-native";
 const { width } = Dimensions.get("window");
 
@@ -116,7 +116,7 @@ export default function AdicionarAquario() {
 
   return (
     <LinearGradient colors={['#00455A', '#004256', '#004E5E', '#005C69', '#006B71', '#007177']} style={styles.container}>
-      {/* Cabeçalho */}
+    
       <View style={styles.header}>
         <Text style={styles.headerText}>Adicionar aquário</Text>
         <TouchableOpacity style={styles.closeButton} onPress={handleCancelarCadastro}>
@@ -130,11 +130,11 @@ export default function AdicionarAquario() {
         </Text>
       )}
 
-      {/* Formulário */}
+
       <View style={styles.form}>
         <Text style={styles.sectionTitle}>Insira os dados do seu aquário:</Text>
 
-        {/* Medidas */}
+
         <View style={styles.inputRow}>
           <TextInput
             style={styles.inputSmall}
@@ -163,7 +163,6 @@ export default function AdicionarAquario() {
         </View>
         <Text style={styles.inputHint}>Medidas em cm</Text>
 
-        {/* Nome */}
         <TextInput
           style={styles.input}
           placeholder="Nome do aquário"
@@ -172,7 +171,6 @@ export default function AdicionarAquario() {
           onChangeText={setNome}
         />
 
-        {/* Data de limpeza */}
         <Text style={styles.label}>Data da última limpeza</Text>
         <TouchableOpacity onPress={showDatePicker} style={styles.inputSmall}>
           <Text style={{ color: selectedDate ? '#fff' : '#fff', fontFamily: 'Poppins_Regular', fontSize: 11 }}>
@@ -186,13 +184,12 @@ export default function AdicionarAquario() {
           onCancel={hideDatePicker}
           value={dataLimpeza}
           locale="pt-BR"
-          maximumDate={new Date()} // Impede a seleção de datas futuras
+          maximumDate={new Date()} 
         />
         <Text style={styles.inputHint}>
           Insira a data da última limpeza para lembretes periódicos
         </Text>
 
-        {/* Temperatura mínima */}
         <Text style={styles.label}>Temperatura mínima</Text>
         <View style={styles.inputRow}>
           <TextInput
@@ -208,7 +205,6 @@ export default function AdicionarAquario() {
           Você será alertado caso a temperatura diminua além desse valor
         </Text>
 
-        {/* Temperatura máxima */}
         <Text style={styles.label}>Temperatura máxima</Text>
         <View style={styles.inputRow}>
           <TextInput
@@ -224,7 +220,7 @@ export default function AdicionarAquario() {
           A ventoinha será ativada caso a temperatura exceda esse valor
         </Text>
 
-        {/* Botão */}
+     
         <TouchableOpacity style={styles.button} onPress={(handleAdicionarAquario)}   >
           <LinearGradient
             colors={["#76C8B2", "#4D92A6"]}

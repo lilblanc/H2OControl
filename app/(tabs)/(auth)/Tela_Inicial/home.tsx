@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {View,Text,TouchableOpacity,Image,StyleSheet,Dimensions,ActivityIndicator} from "react-native";
+import {View,Text,TouchableOpacity,Image,StyleSheet,Dimensions,ActivityIndicator, Platform} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { getAuth } from "firebase/auth";
-import { collection, doc, getDoc, onSnapshot, query, where, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, query, where, getDocs, setDoc } from "firebase/firestore";
 import { firestore } from "../../../firebase/config";
 import { Thermometer, Waves } from 'lucide-react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+
 
 const { width } = Dimensions.get("window");
 
@@ -26,6 +29,62 @@ type SensorData = {
   distancia: number;
   temperatura: number;
 };
+
+
+
+async function salvarTokenNotificacao(token: string) {
+  const user = getAuth().currentUser;
+
+  if (!user) {
+    console.log('Usuário não autenticado');
+    return;
+  }
+
+  try {
+    await setDoc(
+      doc(firestore, 'usuarios', user.uid),
+      { pushToken: token },
+      { merge: true }
+    );
+    console.log('Token salvo com sucesso no Firestore!');
+  } catch (error) {
+    console.error('Erro ao salvar o token no Firestore:', error);
+  }
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Device.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      alert('Permissão para notificações não foi concedida!');
+      return;
+    }
+
+    const pushToken = await Notifications.getExpoPushTokenAsync();
+    token = pushToken.data;
+  } else {
+    alert('Deve ser usado em um dispositivo físico!');
+  }
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+    });
+  }
+
+  return token;
+}
+
 
 export default function HomeScreen() {
   const [nomeUsuario, setNomeUsuario] = useState("");
@@ -52,6 +111,9 @@ export default function HomeScreen() {
   useEffect(() => {
     const carregarDados = async () => {
       const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+      }
       if (user) {
         const usuarioRef = doc(firestore, "usuarios", user.uid);
         const usuarioSnap = await getDoc(usuarioRef);
@@ -85,7 +147,7 @@ export default function HomeScreen() {
             const sensorRef = doc(firestore, "sensores", aquarioData.sensorID);
             onSnapshot(sensorRef, (sensorSnap) => {
               if (sensorSnap.exists()) {
-                setSensorData(sensorSnap.data() as SensorData);
+              const dados = setSensorData(sensorSnap.data() as SensorData);
               }
             });
           } else {
@@ -95,6 +157,15 @@ export default function HomeScreen() {
       }
 
       setLoading(false);
+
+      async function setupPushToken() {
+        const token = await registerForPushNotificationsAsync();
+        if (token) {
+          await salvarTokenNotificacao(token);
+        }
+      }
+    
+      setupPushToken();
     };
 
     carregarDados();
@@ -216,13 +287,13 @@ export default function HomeScreen() {
           <Text style={styles.navTextActive}>Início</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.navItem}
           onPress={() => router.push("/(tabs)/(auth)/Tela_estatisticas/estatisticas")}
         >
           <Image source={require("@/assets/images/estatisticas-icone-desativado.png")} style={styles.navIcon} />
           <Text style={styles.navText}>Estatísticas</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           style={styles.navItem}

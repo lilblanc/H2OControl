@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Alert } from "react-native";
-import { auth, firestore } from "../../../firebase/config"; //  deve ser exportado de config
+import { Text, TouchableOpacity, TextInput, StyleSheet, Alert } from "react-native";
+import { auth, firestore } from "../../../firebase/config"; 
 import { updateProfile } from "firebase/auth";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";

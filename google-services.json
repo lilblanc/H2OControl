@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "439173709729",
+    "firebase_url": "https://sistemademonitoramento-32fb9-default-rtdb.firebaseio.com",
+    "project_id": "sistemademonitoramento-32fb9",
+    "storage_bucket": "sistemademonitoramento-32fb9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439173709729:android:fe3eaf92965af61f2a55e0",
+        "android_client_info": {
+          "package_name": "com.joao.h2ocontrol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsMV3QTU167XRlSG5arZzwcUAc-sktgDg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

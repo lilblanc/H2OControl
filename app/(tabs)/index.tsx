@@ -1,11 +1,12 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native";
+import {Text, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const { width } = Dimensions.get("window");
-
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -15,9 +16,24 @@ export default function WelcomeScreen() {
     Poppins_Bold: Poppins_700Bold,
   });
 
+
+    useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/(tabs)/(auth)/Tela_Inicial/home"); // substitua pelo caminho correto da sua tela principal
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+
   if (!fontsLoaded) {
     return null;
   }
+
+
+
 
   return (
     <LinearGradient colors={["#034264", "#459BB6","#B7E6F6"]} locations={[0, 0.41, 0.64]}  style={styles.container}>

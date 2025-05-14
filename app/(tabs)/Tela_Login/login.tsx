@@ -3,7 +3,8 @@ import {View,Text,TextInput,TouchableOpacity,StyleSheet,Image,Alert,} from "reac
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { auth } from "../../firebase/config.js";
-import { signInWithEmailAndPassword, getAuth} from "firebase/auth";
+import { signInWithEmailAndPassword,} from "firebase/auth";
+
 
 
 export default function LoginScreen() {
@@ -12,7 +13,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
+  
   const handleLogin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -21,7 +22,6 @@ export default function LoginScreen() {
       await user.reload();
   
       if (user.emailVerified) {
-        const token = await user.getIdToken();
         console.log("Usuário logado:", user.email);
         router.replace("/(tabs)/(auth)/Tela_Inicial/home");
       } else {
@@ -30,7 +30,7 @@ export default function LoginScreen() {
           "Seu e-mail ainda não foi verificado. Por favor, verifique seu e-mail antes de continuar."
         );
       }
-    } catch (error ) {
+    } catch (error ) { 
       if (error instanceof Error) {
         Alert.alert(
           "Não foi possível entrar",
@@ -45,6 +45,7 @@ export default function LoginScreen() {
       }
     }
   };
+  
   
 
 
